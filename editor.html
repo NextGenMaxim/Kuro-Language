@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Kuro Web Editor</title>
+ <style>
+  body { background-color: #121212; color: #fff; 
+         font-family: sans-serif; padding: 10px 20px; 
+         margin-top: 70px; margin-bottom: 80px; }
+  h1 { color: #ff3333; margin-bottom: 5px; }
+  .sub { color: #888; font-size: 14px; margin-bottom: 15px; }
+  .p-btn { background-color: #ff9900; color: #000; border: none; 
+           padding: 6px 12px; font-size: 13px; font-weight: bold; 
+           border-radius: 5px; cursor: pointer; margin-bottom: 15px; }
+  textarea { width: 100%; height: 220px; background-color: #1e1e1e; 
+             color: #00ff00; border: 2px solid #333; font-family: monospace; 
+             font-size: 15px; padding: 10px; box-sizing: border-box; }
+  .run-btn { background-color: #ff3333; color: white; border: none; 
+             padding: 12px 25px; font-size: 16px; font-weight: bold; 
+             width: 100%; cursor: pointer; margin: 15px 0; }
+  #console { width: 100%; min-height: 150px; background-color: #000; 
+             color: #fff; border: 2px solid #ff3333; font-family: monospace; 
+             padding: 10px; box-sizing: border-box; white-space: pre-wrap; }
+  .g-img { max-width: 100%; max-height: 130px; border: 2px solid #ff9900; 
+           margin-top: 10px; display: block; }
+  .top-ad { position: fixed; left: 0; top: 0; width: 100%; height: 50px; 
+            background-color: #222; border-bottom: 2px solid #ff3333; 
+            display: flex; justify-content: center; align-items: center; 
+            color: #aaa; font-size: 14px; z-index: 9999; }
+  .bot-ad { position: fixed; left: 0; bottom: 0; width: 100%; height: 50px; 
+            background-color: #222; border-top: 2px solid #ff3333; 
+            display: flex; justify-content: center; align-items: center; 
+            color: #aaa; font-size: 14px; z-index: 9999; }
+ </style>
+</head>
+<body>
+ <div id="top-ad" class="top-ad">ℹ️ [Липкий ВЕРХНИЙ баннер]</div>
+ <h1>Kuro Editor v7.0 👑</h1>
+ <div class="sub">Архитектура: Вилиабл Код | Автор: Максим (Хабаровск)</div>
+ <button id="p-button" class="p-btn" onclick="buy()">✨ Убрать рекламу (99 руб/мес)</button>
+ <textarea id="editor">^комм^ Твой код на Kuro;
+create.variable user = 'Максим';
+txt.print.console('text: Движок успешно запущен!');
+Var.print.console(print-FalseText(*user*); );</textarea>
+ <button class="run-btn" onclick="run()">ЗАПУСТИТЬ 🏁</button>
+ <div id="console">Консоль готова...</div>
+ <div id="bot-ad" class="bot-ad">ℹ️ [Липкий НИЖНИЙ баннер]</div>
+ <script>
+  function buy() {
+   document.getElementById('top-ad').style.display = 'none';
+   document.getElementById('bot-ad').style.display = 'none';
+   document.body.style.marginTop = '10px';
+   const b = document.getElementById('p-button');
+   b.innerText = "✨ Kuro Premium Активирован!";
+   b.style.backgroundColor = "#00ff00"; b.disabled = true;
+  }
+  function run() {
+   const c = document.getElementById('console');
+   c.innerHTML = "--- СКАНИРОВАНИЕ ---\n";
+   const raw = document.getElementById('editor').value.split('\n');
+   let vars = {}; let clean = [];
+   for (let l of raw) {
+    l = l.trim();
+    if (!l || l.startsWith('^комм^')) continue;
+    clean.push(l);
+   }
+   for (let i = 0; i < clean.length; i++) {
+    if (!clean[i].endsWith(';')) {
+     c.innerText += `[SYNTAX ERROR] Строка ${i + 1}: Пропущена ';'!`; return;
+    }
+   }
+   c.innerHTML += "[Система]: Ошибок нет. Запуск...\n\n";
+   for (let l of clean) {
+    if (l.startsWith('create.variable ')) {
+     let eq = l.indexOf('=');
+     let vName = l.substring(16, eq).trim();
+     let vVal = l.substring(l.indexOf("'") + 1, l.lastIndexOf("'"));
+     vars[vName] = vVal;
+    }
+   }
+   for (let l of clean) {
+    if (l.startsWith('create.variable ')) continue;
+    if (l.startsWith('txt.print.console')) {
+     let f = l.substring(l.indexOf("'") + 1, l.lastIndexOf("'"));
+     if (f.startsWith('text:')) c.innerHTML += f.substring(5).trim() + "\n";
+    }
+    else if (l.startsWith('Var.print.console')) {
+     let fs = l.indexOf('*'); let ls = l.indexOf('*', fs + 1);
+     let vName = l.substring(fs + 1, ls).trim();
+     c.innerHTML += (vars[vName] || '[ERROR]') + "\n";
+    }
+   }
+  }
+ </script>
+</body>
+</html>
